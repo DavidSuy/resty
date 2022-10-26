@@ -1,11 +1,23 @@
+import { useState } from 'react';
 import './form.scss';
 
 function Form(props) {
+  let [formInput, setFormInput] = useState();
+  let [formMethod, setFormMethod] = useState('GET');
+
+  let handleUrlInputChange = (e) => {
+    setFormInput(e.target.value);
+  };
+
+  let handleMethodClick = (e) => {
+    setFormMethod(e);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = {
-      method: 'GET',
-      url: 'https://pokeapi.co/api/v2/',
+      method: formMethod,
+      url: formInput,
     };
     props.handleApiCall(formData);
   };
@@ -15,14 +27,22 @@ function Form(props) {
       <form onSubmit={handleSubmit}>
         <label>
           <span>URL: </span>
-          <input name='url' type='text' />
+          <input name='url' type='text' onChange={handleUrlInputChange} />
           <button type='submit'>GO!</button>
         </label>
         <label className='methods'>
-          <span id='get'>GET</span>
-          <span id='post'>POST</span>
-          <span id='put'>PUT</span>
-          <span id='delete'>DELETE</span>
+          <span id='get' onClick={() => handleMethodClick('get')}>
+            GET
+          </span>
+          <span id='post' onClick={() => handleMethodClick('post')}>
+            POST
+          </span>
+          <span id='put' onClick={() => handleMethodClick('put')}>
+            PUT
+          </span>
+          <span id='delete' onClick={() => handleMethodClick('delete')}>
+            DELETE
+          </span>
         </label>
       </form>
     </>
