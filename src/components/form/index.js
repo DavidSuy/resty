@@ -3,7 +3,7 @@ import './form.scss';
 
 function Form(props) {
   let [formInput, setFormInput] = useState();
-  let [formMethod, setFormMethod] = useState('GET');
+  let [formMethod, setFormMethod] = useState('get');
 
   let handleUrlInputChange = (e) => {
     setFormInput(e.target.value);
