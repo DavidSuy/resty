@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './app.scss';
 import axios from 'axios';
+import { prettyPrintJson } from 'pretty-print-json';
 
 import Header from './components/header';
 import Footer from './components/footer';
@@ -9,15 +10,31 @@ import Results from './components/results';
 
 function App() {
   let [data, setData] = useState({});
-  let [requestParams, setRequestParams] = useState({});
+  let [requestParams, setRequestParams] = useState({
+    method: 'get',
+    url: '',
+  });
+
+  // const dataTest = {
+  //   active: true,
+  //   mode: '🚃',
+  //   codes: [48348, 28923, 39080],
+  //   city: 'London',
+  // };
+  // const elem = document.getElementById('test');
+  // elem.innerHTML = prettyPrintJson.toHtml(dataTest);
 
   async function handleApiCall(requestParams) {
-    console.log(requestParams.method);
-    let response = await axios[requestParams.method](requestParams.url);
-
-    setData(response.data);
     setRequestParams({ ...requestParams });
   }
+
+  useEffect(() => {
+    async function makeApiReq() {
+      let response = await axios[requestParams.method](requestParams.url);
+      setData(response.data);
+    }
+    makeApiReq();
+  }, [requestParams]);
 
   return (
     <>
