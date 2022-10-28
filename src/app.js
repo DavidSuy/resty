@@ -7,19 +7,28 @@ import Header from './components/header';
 import Footer from './components/footer';
 import Form from './components/form';
 import Results from './components/results';
+import History from './components/history';
 
-const reducer = async (state, action) => {
+const reducer = (state, action) => {
   switch (action.type) {
     case 'test':
       console.log('test case');
-    case 'addHistory':
-      // console.log(state.history, action.payload);
-      // let response = await axios[action.payload.method](action.payload.url);
-      // let data = response.data;
+    case 'updateRequestParams':
+      console.log('updateRequestParams');
       return {
         ...state,
-        // history: state.history.push(data),
-        history: [...state.history, action.payload],
+        requestParams: action.payload,
+      };
+    case 'addHistory':
+      return {
+        ...state,
+        history: [action.payload, ...state.history],
+        results: action.payload,
+      };
+    case 'updateResults':
+      return {
+        ...state,
+        results: state.history[action.payload],
       };
     default:
       return state;
@@ -29,12 +38,12 @@ const reducer = async (state, action) => {
 };
 
 const initialState = {
-  // data: {},
   history: [],
   requestParams: {
     method: 'get',
     url: 'https://pokeapi.co/api/v2/pokemon',
   },
+  results: {},
 };
 
 function App() {
@@ -47,58 +56,50 @@ function App() {
   let [state, dispatch] = useReducer(reducer, initialState);
   console.log('state', state);
 
-  // const dataTest = {
-  //   active: true,
-  //   mode: '🚃',
-  //   codes: [48348, 28923, 39080],
-  //   city: 'London',
-  // };
-  // const elem = document.getElementById('test');
-  // elem.innerHTML = prettyPrintJson.toHtml(dataTest);
-
   function handleApiCall(requestParams) {
-    // setRequestParams({ ...requestParams });
-    // let x = {};
-    // const makeApiReq = async () => {
-    //   let req = await axios[requestParams.method](requestParams.url);
-    // };
-    // x = makeApiReq();
-
     dispatch({
-      type: 'addHistory',
-      payload: {
-        ...requestParams,
-        // payload: req.data,
-        payload: x,
-      },
+      type: 'updateRequestParams',
+      payload: requestParams,
     });
-    // let data = response.data;
-
-    // dispatch({
-    //   type: 'addHistory',
-    //   payload: {
-    //     ...requestParams,
-    //     data,
-    //   },
-    // });
   }
 
-  //   useEffect(() => {
-  //   async function makeApiReq() {
-  //     let response = await axios[requestParams.method](requestParams.url);
-  //     setData(response.data);
-  //   }
-  //   console.log('useEffect');
-  //   makeApiReq();
-  // }, [state.history]);
+  function handleHistoryClick(idx) {
+    console.log(idx);
+    dispatch({
+      type: 'updateResults',
+      payload: idx,
+    });
+  }
+
+  useEffect(() => {
+    async function makeApiReq() {
+      let response = await axios[state.requestParams.method](
+        state.requestParams.url
+      );
+      dispatch({
+        type: 'addHistory',
+        payload: {
+          method: state.requestParams.method,
+          url: state.requestParams.url,
+          results: response.data,
+        },
+      });
+    }
+    makeApiReq();
+  }, [state.requestParams]);
 
   return (
     <>
       <Header />
-      <div>Request Method: {requestParams.method}</div>
-      <div>URL: {requestParams.url}</div>
+      <div>Request Method: {state.requestParams.method}</div>
+      <div>URL: {state.requestParams.url}</div>
       <Form handleApiCall={handleApiCall} />
-      <Results data={data} />
+      {/* {if(true){ console.log('x')}} */}
+      <History
+        history={state.history}
+        handleHistoryClick={handleHistoryClick}
+      />
+      <Results data={state.results} />
       <Footer />
     </>
   );
